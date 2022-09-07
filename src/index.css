@@ -1,13 +1,28 @@
 body {
   margin: 0;
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
+  font-family: VK, -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
     'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
     sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  
 }
 
 code {
   font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
-    monospace;
+    monospace, 'VK';
+}
+
+@font-face {
+  font-size: 100%;
+  font-family: "VK";
+  src: local('VK'), url(./components/layout/fonts/VK.ttf) format('truetype');
+  font-weight: bold;
+}
+
+span, div, button, p, span, select{
+  font-family: "VK" !important;
+  color: #FFD966;
+  text-shadow: -1px -1px 0 #000, 1px -1px 0 #000, ;
+  font-size: 25px;
 }

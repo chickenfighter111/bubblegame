@@ -1,19 +1,24 @@
 import React from 'react';
 import ReactDOM from 'react-dom/client';
 import './index.css';
-import App from './App';
-import reportWebVitals from './reportWebVitals';
+import App from './walletProvider';
+import { MoralisProvider } from "react-moralis";
+
+import 'bootstrap/dist/css/bootstrap.min.css';
+
 
 const root = ReactDOM.createRoot(
   document.getElementById('root') as HTMLElement
 );
+
 root.render(
   <React.StrictMode>
-    <App />
+    <MoralisProvider
+      initializeOnMount={true}
+      appId="86ha91JwUR7VM6lfPRFQkNXJtzN7o281WJ5Os1Ms"
+      serverUrl="https://hes2okeagzok.usemoralis.com:2053/server"
+    >
+     <App />
+    </MoralisProvider>
   </React.StrictMode>
 );
-
-// If you want to start measuring performance in your app, pass a function
-// to log results (for example: reportWebVitals(console.log))
-// or send to an analytics endpoint. Learn more: https://bit.ly/CRA-vitals
-reportWebVitals();

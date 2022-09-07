@@ -1,38 +1,125 @@
 .App {
   text-align: center;
+  color: #FFD966;
+  background-image: linear-gradient(
+    to bottom,
+    #02345f 0,
+    #000c18 100%
+  );
+  height: 100vh;
+  overflow-y: scroll;
+}
+
+.mainContainer{
+  background-image: url("./components/layout/media/sky.png");
+  background-repeat: no-repeat;
+  background-position: center;
+  background-size: cover;
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  border-style: solid;
+  border-top: none;
+  border-bottom: none;
+
+}
+
+.gameForm{
+  border-style: solid;
+  background-image: url("./components/layout/media/forest.jpg");
+  background-repeat: no-repeat;
+  background-position: center;
+  background-size: cover;
+  
+  position: relative;
+  margin-top: auto;
+  left: 0;
+  width: 100%;
+  border-bottom: none;
+  border-left: none;
+  border-right: none;
+}
+
+.burando{
+  color: #FFD966 !important;
 }
 
 .App-logo {
-  height: 40vmin;
+  height: 6vmin;
   pointer-events: none;
-}
-
-@media (prefers-reduced-motion: no-preference) {
-  .App-logo {
-    animation: App-logo-spin infinite 20s linear;
-  }
-}
-
-.App-header {
-  background-color: #282c34;
-  min-height: 100vh;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  font-size: calc(10px + 2vmin);
-  color: white;
 }
 
 .App-link {
   color: #61dafb;
 }
 
-@keyframes App-logo-spin {
-  from {
-    transform: rotate(0deg);
-  }
-  to {
-    transform: rotate(360deg);
-  }
+.betCol{
+  min-width: 7vw !important;  
+}
+
+.discordChat{
+  margin-top: 10px;
+  margin-bottom: 20px;
+}
+
+.announcements{
+  overflow-y: scroll;
+  max-height: 60vh;
+}
+
+.btn-primary{
+  background-color: #FFD966 !important;
+  border-color: #000000;
+  box-shadow: -3px 3px orange, -2px 2px orange, -1px 1px orange;
+  border: 1px solid black;
+}
+.btn-primary:hover, .btn-primary:focus{
+    background-color: #97803a !important;
+    border-color: #000000;
+    box-shadow: #FFD966
+}
+
+.bets{
+  padding: 20px !important;
+  margin-bottom: -40px;
+  margin-top: -40px !important;
+}
+
+.options{
+  margin-left: 60px !important;
+  margin-right: 60px !important;
+}
+
+
+option:hover{
+    background-color: #FFD966 ;
+}
+
+.gameMod{
+  margin-bottom: 20px !important;
+  margin-top: 10px !important;
+  justify-content: center;
+}
+
+.aCard{
+
+}
+
+.chickens{
+  margin-top: 15px !important;
+  position:relative;
+  display: flex !important;
+  align-items: center !important;
+}
+
+.cardCol{
+  margin-left: 10px !important;
+  margin-right: 10px !important;
+  max-width: 120px !important;
+  max-height: 120px !important;
+}
+
+.centered{
+  margin-top: 10vh !important;
+
 }

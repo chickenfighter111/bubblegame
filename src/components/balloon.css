@@ -1,0 +1,66 @@
+
+
+.bubble {
+  -webkit-tap-highlight-color: rgba(0, 0, 0, 0);
+  opacity: 1;
+  transform: scale(1);
+  transition: all ease-in-out;
+  position:absolute;
+  cursor: pointer;
+  width: 5vw;
+  height: 5vh;
+  background: url("./layout/media/bubble.png") no-repeat 50% / contain;;
+}
+
+.set-of-balloons *{
+  --balloonDimension: 5vmax !important;
+
+}
+
+.bubble.popped {
+  animation:  popped  1s ease-out both;
+  animation-duration: 1s;
+}
+
+.bubble.animating {
+  animation: float 20s linear infinite both;
+}
+
+.stage {
+  overflow: hidden;
+  height: 80vh;
+  width: 100%;
+  position: relative;
+}
+
+@keyframes popped {
+  0% {
+    transform: scale(1);
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+    transform: scale(5);
+  }
+}
+
+@keyframes float {
+  0% {
+    opacity: 0;
+    transform: translateY(200%);
+  }
+
+  5% {
+    opacity: 1;
+  }
+
+  95% {
+    opacity: 1;
+  }
+
+  100% {
+    opacity: 0;
+    transform: translateY(-1000%);
+  }
+}
+
