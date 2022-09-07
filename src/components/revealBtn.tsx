@@ -17,11 +17,11 @@ const RevealBtn = (props) =>{
         const result = await Moralis.Cloud.run("popBubble", params);
         //console.log(value)
         if(result){
-            setReveal(true)
-        }
-        else{
             setBomb(true)
             props.lose()
+        }
+        else{
+        setReveal(true)
         }
     }
 
