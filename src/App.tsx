@@ -65,10 +65,8 @@ function App(props) {
     [1, 0, 0, 0, 0]
   ]
 
-  const b58pk = "Dy5nq5Rpvkm4D6N7qVLMAwqFRvtFpRGvmKqtQFV5xjCq";
-  const sk = "kKC2dbEpH808lttMVL0dhhubwYTt9S7dU6abH1+iLlPAqi9GayJwkQcOImouIWyB707c3ucjCAlOFXeFsatu7g==";
   const treasury = "2JM2X3J1JnQ7kRvLg1vF5rbNw1Hrg6AhPHx1BoQJESho"
-  const escrowPDA = "FQw2TgLrfvGo92eAtXXC63amvUY9b6FnECwYPAmPfMS7"
+  //const escrowPDA = "FQw2TgLrfvGo92eAtXXC63amvUY9b6FnECwYPAmPfMS7"
 
   const { wallet, publicKey, signTransaction, signAllTransactions, connected } = useWallet();
   const anchorWallet = useMemo(() => {
@@ -221,7 +219,10 @@ function App(props) {
     const playerBuff = _base64ToArrayBuffer(aWallet.get("key"))
     const u8int = new Uint8Array(playerBuff)
     const escrowWallet = Keypair.fromSecretKey(u8int)
-    const playerPDA = new web3.PublicKey(escrowPDA);
+
+    let [playerPDA, accBump] = await web3.PublicKey.findProgramAddress(
+      [utf8.encode("escrow_wallet").buffer, escrowWallet.publicKey.toBuffer()], program.programId);
+   // const playerPDA = new web3.PublicKey(escrowWallet.publicKey);
 
     try{
       const tx = await program.methods.deposit(new BN((LAMPORTS_PER_SOL*bet) -(0.0001 * LAMPORTS_PER_SOL)))
@@ -256,7 +257,9 @@ function App(props) {
     const playerBuff = _base64ToArrayBuffer(aWallet?.get("key"))
     const u8int = new Uint8Array(playerBuff)
     const escrowWallet = Keypair.fromSecretKey(u8int)
-    const playerPDA = new web3.PublicKey(escrowPDA);
+
+    let [playerPDA, accBump] = await web3.PublicKey.findProgramAddress(
+      [utf8.encode("escrow_wallet").buffer, escrowWallet.publicKey.toBuffer()], program.programId);
     const treasurePDA = new web3.PublicKey(treasury);
     const player = Moralis.User.current()
 
@@ -272,7 +275,7 @@ function App(props) {
       tx.feePayer = escrowWallet.publicKey;
       tx.recentBlockhash = (await aConnection.getLatestBlockhash('finalized')).blockhash;
       const sig = await sendAndConfirmTransaction(connection, tx, [escrowWallet]);
-    //  console.log("losing sigature", sig)
+     // console.log("losing sigature", sig)
       const msg = `${player.id} lost ${bet} SOL... :( `
       await Moralis.Cloud.run("addAnnouncement", {msg: msg});
       await reset()
@@ -296,7 +299,9 @@ function App(props) {
     const playerBuff = _base64ToArrayBuffer(aWallet.get("key"))
     const u8int = new Uint8Array(playerBuff)
     const escrowWallet = Keypair.fromSecretKey(u8int)
-    const playerPDA = new web3.PublicKey(escrowPDA);
+
+    let [playerPDA, accBump] = await web3.PublicKey.findProgramAddress(
+      [utf8.encode("escrow_wallet").buffer, escrowWallet.publicKey.toBuffer()], program.programId);
     const treasurePDA = new web3.PublicKey(treasury);
     const player = Moralis.User.current()
 
@@ -360,11 +365,10 @@ function App(props) {
       const aUser = Moralis.User.current();
       const playerPDA = aUser.get("player_wallet");
       if (playerPDA) {
-        const escrow = new web3.PublicKey(playerPDA)
+        //const escrow = new web3.PublicKey(playerPDA)
         try {
           //let balance = Math.round(((await aconnection.getBalance(escrow)) /LAMPORTS_PER_SOL * 100) / 100)
           //props.setBalance(balance)
-       //   console.log(props.balance)
           if (props.balance >= 0.1){
             //await deposit()
             if (gameMod === "Classic") generate2DFillRandom()

@@ -144,17 +144,21 @@ export const StyledSelect = styled(Form.Select)`
   border: 1px solid black;
   &:hover {
     background-color: #97803a !important;
+    color: #ffffff !important;
     box-shadow: -3px 3px orange, -2px 2px orange, -1px 1px orange;
     border: 1px solid black;
   }
   &:focus {
     background-color: #97803a !important;
+    color: #000000 !important;
     box-shadow: -3px 3px orange, -2px 2px orange, -1px 1px orange;
     border: 1px solid black;
   }
   .gameMod{
     &:hover{
       background-color: #FFD966 !important
+      color: #000000 !important;
+
     }
   }
 `

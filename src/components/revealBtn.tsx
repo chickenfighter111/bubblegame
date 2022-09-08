@@ -9,19 +9,18 @@ const RevealBtn = (props) =>{
     const [bomb, setBomb] = useState(false)
 
 
-    const revealBtn = async(event) =>{
+    const revealBtn = async() =>{
         const audio = document.getElementById("click");
         audio.play();
-        const value = event.target.value;
-        const params = {game: props.game, bubble: Number(value)};
+        const params = {game: props.game, bubble: props.index};
         const result = await Moralis.Cloud.run("popBubble", params);
         //console.log(value)
         if(result){
-            setBomb(true)
-            props.lose()
+            setReveal(true)
         }
         else{
-        setReveal(true)
+            setBomb(true)
+            props.lose()
         }
     }
 
