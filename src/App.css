@@ -16,12 +16,11 @@
   background-position: center;
   background-size: cover;
   height: 100vh;
-  display: flex;
-  flex-direction: column;
-  border-style: solid;
-  border-top: none;
-  border-bottom: none;
-
+  display: flex !important;
+  flex-direction: column !important;
+  border-style: solid !important;
+  border-top: none !important;
+  border-bottom: none !important;
 }
 
 .gameForm{
@@ -30,7 +29,6 @@
   background-repeat: no-repeat;
   background-position: center;
   background-size: cover;
-  
   position: relative;
   margin-top: auto;
   left: 0;
@@ -81,7 +79,7 @@
 
 .bets{
   padding: 20px !important;
-  margin-bottom: -40px;
+  margin-bottom: -40px !important;
   margin-top: -40px !important;
 }
 
@@ -98,7 +96,7 @@ option:hover{
 .gameMod{
   margin-bottom: 20px !important;
   margin-top: 10px !important;
-  justify-content: center;
+  justify-content: center ;
 }
 
 .aCard{
