@@ -11,7 +11,7 @@ background-color: #FFD966;
 color: #000000;
 border-color: #000000;
 box-shadow: -3px 3px orange, -2px 2px orange, -1px 1px orange;
-border: 1px solid black;
+border: 1px solid black !important;
 
 .btn-primary{
   background-color: #97803a !important;
@@ -187,4 +187,23 @@ export const Cardbtn = styled(Button)`
     color: #ffffff !important;
   }
   position:relative
+`
+
+export const StyledModal = styled(Modal)`
+  .modal-content{
+    border: 1px solid black;
+    background-image: linear-gradient(
+      to bottom,
+      #024774 0,
+      #000c18 100%
+    );
+    .modal-header{
+      border: none
+    }
+  }
+ div{
+  div{
+    border-radius: 25px;
+  }
+ }
 `

@@ -23,7 +23,7 @@ import winAudio from './components/layout/media/winz.wav';
 import loseAudio from './components/layout/media/lose.mp3';
 import clickAudio from './components/layout/media/clicz.wav';
 
-import {FaBomb} from 'react-icons/fa'
+import {NoFundsPopper} from './components/layout/popup'
 
 const ContainerRow = styled(Row)`
   max-width: 99vw
@@ -52,8 +52,9 @@ function App(props) {
   const [n, setN] = useState(null)
   const [bet, setBet] = useState(0.1)
   const [popped, setPopped] = useState(0)
-
   const [mode, setDifficulty] = useState("easy")
+
+  const [noFunds, setNoFunds] = useState(false);
 
 
   const { logout, isAuthenticated, authenticate } = useMoralis();
@@ -368,10 +369,12 @@ function App(props) {
       const playerPDA = aUser.get("player_wallet");
       if (playerPDA) {
         try {
-          if (props.balance >= 0.1){
+          if (props.balance > 0.1 && props.balance >= bet){
             await deposit()
             if (gameMod.toLowerCase() === "classic") generate2DFillRandom()
             setStart(true)
+          }else{
+            setNoFunds(true)
           }
          // else console.log("you're poor")
         } catch (err) {
@@ -393,6 +396,7 @@ function App(props) {
     return (
       <Container>
         <div className="mainContainer">
+          <NoFundsPopper noFunds={noFunds} close={() => setNoFunds(false)} />
           {start && bubbles && gameId ? 
           (<div>
              <audio
