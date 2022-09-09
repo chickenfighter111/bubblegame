@@ -100,7 +100,7 @@ class Stage extends Component {
    // console.log(astage?.offsetTop) //530..
 
     const x = document.body.offsetHeight - element.clientHeight;
-    const y = document.body.offsetWidth - element.clientWidth - astage?.offsetLeft * 2;
+    const y = document.body.offsetWidth - element.clientWidth - astage?.offsetLeft * 2.1;
     //console.log(y) //436
     //console.log(document.body.offsetWidth)//1920
 
@@ -129,6 +129,7 @@ class Stage extends Component {
     this.setState({
       popped: this.state.popped + 1
     });
+    //this.props.popper(this.state.popped)
   }
 
   renderer = ({ seconds, completed }) => {
@@ -155,6 +156,7 @@ class Stage extends Component {
         ) : (
           <Countdown date={Date.now() + 3000} renderer={this.renderer} />
         )}
+        
       </div>
     );
   }

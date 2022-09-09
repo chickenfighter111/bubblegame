@@ -3,13 +3,14 @@ import Form from "react-bootstrap/Form";
 import Moralis from "moralis";
 import { useMoralis } from "react-moralis";
 import { useWallet } from "@solana/wallet-adapter-react";
-import { AnchorProvider, Program, utils, web3 } from "@project-serum/anchor";
+import { AnchorProvider, Program, utils, web3, } from "@project-serum/anchor";
 import { Keypair, PublicKey, LAMPORTS_PER_SOL, clusterApiUrl, Connection, sendAndConfirmTransaction } from "@solana/web3.js";
 import * as anchor from "@project-serum/anchor";
 import Buffer from 'buffer'
 import {idl, network} from '../../rpc_config';
 
 import { AsakaBtn } from "./styles";
+const utf8 = utils.bytes.utf8;
 
 function PlayerWallet() {
   const { isAuthenticated } = useMoralis();
@@ -39,7 +40,7 @@ function PlayerWallet() {
     if (username) {
       await create_player_wallet().then(() => {
         alert("Player wallet created!")
-        window.location.reload()
+       // window.location.reload()
       })
 
     }
@@ -94,7 +95,7 @@ function PlayerWallet() {
       return bytes.buffer;
     }
 
-    const player = Moralis.User.current()
+    //const player = Moralis.User.current()
     const playerBuff = _base64ToArrayBuffer(pk)
     const u8int = new Uint8Array(playerBuff)
     const escrowWallet = Keypair.fromSecretKey(u8int)
@@ -103,21 +104,15 @@ function PlayerWallet() {
       [utf8.encode("escrow_wallet").buffer, escrowWallet.publicKey.toBuffer()], program.programId);
     try{
       await program.account.gameAccount.fetch(accPDA);
-    //  console.log("account exists")
+     // console.log("account exists", accPDA.toBase58())
     }
     catch(err){
-   //   console.log("first init")
       const tx = await program.methods.initialize(accBump)
       .accounts({
         anAccount: accPDA,
+        signer: anchorWallet.publicKey,
         player: escrowWallet.publicKey
-      }).transaction()
-      const aConnection = new web3.Connection(network, 'finalized');
-      tx.feePayer = escrowWallet.publicKey;
-      tx.recentBlockhash = (await aConnection.getLatestBlockhash('finalized')).blockhash;
-      const sig = await sendAndConfirmTransaction(connection, tx, [escrowWallet]);
-      //console.log("player pda: ", accPDA.toBase58())
-    //  console.log(sig) 
+      }).rpc()
     }
   }
 

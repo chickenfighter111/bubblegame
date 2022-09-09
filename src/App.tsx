@@ -23,6 +23,7 @@ import winAudio from './components/layout/media/winz.wav';
 import loseAudio from './components/layout/media/lose.mp3';
 import clickAudio from './components/layout/media/clicz.wav';
 
+import {FaBomb} from 'react-icons/fa'
 
 const ContainerRow = styled(Row)`
   max-width: 99vw
@@ -41,31 +42,25 @@ const CardContainer = styled(Container)`
 function App(props) {
   const [board, setBoard] = useState<any>(null)
   const [bubbles, setBubbles] = useState<any>(null)
+
   const [start, setStart] = useState(false)
   const [generated, setGen] = useState(false)
   const [gameId, setGameId] = useState(null)
-  const [gameMod, setGame] = useState("Bubble")
+  const [gameMod, setGame] = useState("bubble")
 
   const [numBub, setNumBub] = useState(null)
   const [n, setN] = useState(null)
-  const [bet, setBet] = useState(0)
+  const [bet, setBet] = useState(0.1)
+  const [popped, setPopped] = useState(0)
 
-  const [mode, setDifficulty] = useState(null)
-
-
+  const [mode, setDifficulty] = useState("easy")
 
 
   const { logout, isAuthenticated, authenticate } = useMoralis();
 
-  const testArr = [
-    [1, 0, 0, 0, 1],
-    [1, 1, 0, 0, 0],
-    [0, 0, 0, 0, 1],
-    [0, 1, 1, 1, 1],
-    [1, 0, 0, 0, 0]
-  ]
 
   const treasury = "2JM2X3J1JnQ7kRvLg1vF5rbNw1Hrg6AhPHx1BoQJESho"
+  const tres = "GFkgJ17mQJTx91xCcZvbKqhAYQStTUHWQBqeWJZnoDjT"
   //const escrowPDA = "FQw2TgLrfvGo92eAtXXC63amvUY9b6FnECwYPAmPfMS7"
 
   const { wallet, publicKey, signTransaction, signAllTransactions, connected } = useWallet();
@@ -83,6 +78,21 @@ function App(props) {
   });
   const program = new Program(idl as Idl, idl.metadata.address, provider);
 
+
+  async function initTrez(){
+    let [treasuryPDA, abump] = await web3.PublicKey.findProgramAddress(
+      [utf8.encode("treazury_wallet").buffer], program.programId);
+    try{
+      await program.methods.init(abump).accounts({
+        treasuryAccount: treasuryPDA,
+        player: anchorWallet.publicKey
+      }).rpc()
+    //  console.log(treasuryPDA.toBase58())
+    }
+    catch(err){
+    //  console.log(err)
+    }
+  }
 
   function generateBubbles(){
     var rngs: number[] = [];
@@ -159,9 +169,8 @@ function App(props) {
     if (!generated){
       const playerId = Moralis.User.current().id
       let params;
-      if(gameId){
-        params = {mod: gameMod, game: gameId, playerId: playerId, mode:mode};
-      } else  params = {mod: gameMod, game: null, playerId: playerId, mode:mode};
+      if(gameId) params = {mod: gameMod, game: gameId, playerId: playerId, mode:mode};
+      else  params = {mod: gameMod, game: null, playerId: playerId, mode:mode};
       const board = await Moralis.Cloud.run("generateBoard", params);
 //
       setN(board.get("n"))
@@ -179,19 +188,13 @@ function App(props) {
       setGen(false)
       setBubbles(null)
       setBoard(null)
+
+      setN(null)
+      setNumBub(null)
+      setPopped(0)
       const params = {game: gameId};
       await Moralis.Cloud.run("reset", params);
     }
-  }
-
-  const generateWallet = async () =>{
-
-    const aKP = Keypair.generate()
-    var b58Public = aKP.publicKey.toBase58();
-    var b64 = aKP.secretKey.buffer
-    const b64encoded = _arrayBufferToBase64(b64)
-   // console.log([b58Public,b64encoded])
-    return [b58Public,b64encoded]
   }
 
   async function getBalance(){
@@ -225,7 +228,7 @@ function App(props) {
    // const playerPDA = new web3.PublicKey(escrowWallet.publicKey);
 
     try{
-      const tx = await program.methods.deposit(new BN((LAMPORTS_PER_SOL*bet) -(0.0001 * LAMPORTS_PER_SOL)))
+      const tx = await program.methods.depositz(new BN((LAMPORTS_PER_SOL*bet) -(0.0001 * LAMPORTS_PER_SOL)), mode.toLowerCase())
       .accounts({
         player: escrowWallet.publicKey, //from
         anAccount: playerPDA
@@ -235,13 +238,13 @@ function App(props) {
       tx.feePayer = escrowWallet.publicKey;
       tx.recentBlockhash = (await aConnection.getLatestBlockhash('finalized')).blockhash;
       const sig = await sendAndConfirmTransaction(connection, tx, [escrowWallet]);
-     // console.log("Deposit signature ",sig)
-      //const pacc = await program.account.gameAccount.fetch(playerPDA);
+      //console.log("Deposit signature ",sig)
+      const pacc = await program.account.gameAccount.fetch(playerPDA);
+     // console.log(pacc)
       getBalance()
-      //console.log(pacc.deposit.toNumber()/LAMPORTS_PER_SOL)
     }
     catch(err){
-   //   console.log(err)
+    //  console.log(err)
     }
   }
 
@@ -253,16 +256,13 @@ function App(props) {
     const walletQry = new Moralis.Query("Wallet")
     walletQry.equalTo("owner", aUser.id)
     const aWallet = await walletQry.first()
-
     const playerBuff = _base64ToArrayBuffer(aWallet?.get("key"))
     const u8int = new Uint8Array(playerBuff)
     const escrowWallet = Keypair.fromSecretKey(u8int)
 
     let [playerPDA, accBump] = await web3.PublicKey.findProgramAddress(
       [utf8.encode("escrow_wallet").buffer, escrowWallet.publicKey.toBuffer()], program.programId);
-    const treasurePDA = new web3.PublicKey(treasury);
-    const player = Moralis.User.current()
-
+    const treasurePDA = new web3.PublicKey(tres);
     try{
       const tx = await program.methods.lose()
       .accounts({
@@ -274,16 +274,17 @@ function App(props) {
       const aConnection = new web3.Connection(network, 'finalized');
       tx.feePayer = escrowWallet.publicKey;
       tx.recentBlockhash = (await aConnection.getLatestBlockhash('finalized')).blockhash;
-      const sig = await sendAndConfirmTransaction(connection, tx, [escrowWallet]);
-     // console.log("losing sigature", sig)
-      const msg = `${player.id} lost ${bet} SOL... :( `
-      await Moralis.Cloud.run("addAnnouncement", {msg: msg});
+      const sig = await sendAndConfirmTransaction(connection, tx, [escrowWallet], {commitment: "processed"});
+      //console.log("losing sigature", sig)
       await reset()
+      const msg = `${aUser.getUsername()} lost ${bet} SOL... :( `
+      await Moralis.Cloud.run("addAnnouncement", {msg: msg});
+      //console.log("losing done")
      // const pacc = await program.account.gameAccount.fetch(playerPDA);
       //console.log(pacc.deposit.toNumber()/LAMPORTS_PER_SOL)
     }
     catch(err){
-     // console.log(err)
+   //   console.log(err)
     }
   }
 
@@ -302,34 +303,36 @@ function App(props) {
 
     let [playerPDA, accBump] = await web3.PublicKey.findProgramAddress(
       [utf8.encode("escrow_wallet").buffer, escrowWallet.publicKey.toBuffer()], program.programId);
-    const treasurePDA = new web3.PublicKey(treasury);
-    const player = Moralis.User.current()
+    const treasurePDA = new web3.PublicKey(tres);
+    //const player = Moralis.User.current()
+    //console.log(playerPDA.toBase58())
 
-    const won: boolean = await Moralis.Cloud.run("generateBoard", {game: gameId});
-    if(won){
-      try{
-        const tx = await program.methods.win()
-        .accounts({
-          player: escrowWallet.publicKey, //from
-          anAccount: playerPDA,
-          treasuryAccount: treasurePDA
-        }).transaction()
-  
-        const aConnection = new web3.Connection(network, 'finalized');
-        tx.feePayer = escrowWallet.publicKey;
-        tx.recentBlockhash = (await aConnection.getLatestBlockhash('finalized')).blockhash;
-        const sig = await sendAndConfirmTransaction(connection, tx, [escrowWallet]);
-       // console.log(sig)
-        //const pacc = await program.account.gameAccount.fetch(playerPDA);
-        getBalance()
-        const msg = `${player.id} won ${bet} SOL! Sheeesh`
-        await Moralis.Cloud.run("addAnnouncement", {msg: msg});
-        await reset()
-        //console.log(pacc.deposit.toNumber()/LAMPORTS_PER_SOL)
-      }
-      catch(err){
-      //  console.log(err)
-      }
+
+
+    //const won: boolean = await Moralis.Cloud.run("checkWinner", {game: gameId});
+    try{
+      const tx = await program.methods.winz(await Moralis.Cloud.run("checkWinner", {game: gameId}) as number) //.win()
+      .accounts({
+        player: escrowWallet.publicKey, //from
+        anAccount: playerPDA,
+        treasuryAccount: treasurePDA
+      }).transaction()
+
+      const aConnection = new web3.Connection(network, 'finalized');
+      tx.feePayer = escrowWallet.publicKey;
+      tx.recentBlockhash = (await aConnection.getLatestBlockhash('finalized')).blockhash;
+      const sig = await sendAndConfirmTransaction(connection, tx, [escrowWallet], {commitment: "processed"});
+     // console.log(sig)
+      //const pacc = await program.account.gameAccount.fetch(playerPDA);
+      getBalance()
+      const msg = `${aUser.getUsername()} won ${bet} SOL! Sheeesh`
+      await Moralis.Cloud.run("addAnnouncement", {msg: msg});
+      await reset()
+      const pacc = await program.account.gameAccount.fetch(playerPDA);
+      //console.log(pacc)
+    }
+    catch(err){
+     // console.log(err)
     }
   }
 
@@ -361,17 +364,13 @@ function App(props) {
 
   const startGame = async () =>{
     if(bet >= 0.1 && bet <= 1 ){
-      const aconnection = new web3.Connection(network, "finalized");
       const aUser = Moralis.User.current();
       const playerPDA = aUser.get("player_wallet");
       if (playerPDA) {
-        //const escrow = new web3.PublicKey(playerPDA)
         try {
-          //let balance = Math.round(((await aconnection.getBalance(escrow)) /LAMPORTS_PER_SOL * 100) / 100)
-          //props.setBalance(balance)
           if (props.balance >= 0.1){
-            //await deposit()
-            if (gameMod === "Classic") generate2DFillRandom()
+            await deposit()
+            if (gameMod.toLowerCase() === "classic") generate2DFillRandom()
             setStart(true)
           }
          // else console.log("you're poor")
@@ -386,6 +385,9 @@ function App(props) {
       genCloudBoard();
     }
   },[start])
+
+
+ 
 
   const MainContainer = () => {
     return (
@@ -405,7 +407,7 @@ function App(props) {
                 id="click"
                 src={clickAudio}
             />
-            {(gameMod === "Bubble") ? <Bubbles game={gameId}/> 
+            {(gameMod === "bubble") ? <Bubbles game={gameId}/> 
             : (
               <div>
                 {board ? 
@@ -415,35 +417,31 @@ function App(props) {
               </div>
             )
             }
+             <ClaimContainer mode={mode} gameId={gameId} start={start} generated={generated} board={board} bubbles={bubbles} bet={bet} win={win} popped={popped}/>
           </div>) : 
           (
           <div className='gameForm'>
             <Row className="justify-content-md-center gameMod">
-            <h2>MODE</h2> 
-            <StyledSelect size="lg" value={gameMod} onChange={setMod}>
-              <option value="Bubble">Bubble</option>
-              <option value="Classic">Classic</option>
-            </StyledSelect>
+            <Col sm={3}><h2>GAME </h2> 
+            <Container><StyledSelect  size="lg" value={gameMod} onChange={setMod}>
+              <option value="bubble">Bubble </option>
+              <option value="classic">Classic </option>
+            </StyledSelect></Container></Col>
+            <Col sm={3}><h2>MODE</h2> 
+              <Container><StyledSelect size="lg" value={mode} onChange={setMode}>
+                <option value="easy">Easy</option>
+                <option value="normal">Normal</option>
+                <option value="hard">Hard</option>
+              </StyledSelect></Container></Col>
+              <Col sm={3}><h2>BET</h2> 
+              <Container><StyledSelect size="lg" value={bet} onChange={setaBet}>
+                <option value={0.1}>0.1 SOL</option>
+                <option value={0.5}>0.5 SOL</option>
+                <option value={1}>1 SOL</option>
+              </StyledSelect></Container>
+              </Col>
             </Row>
-            <Row className="justify-content-md-center">
-              <h2>DIFFICULTY</h2> 
-              <Col md={2}><AsakaBtn onClick={setMode} value="easy"> Easy</AsakaBtn></Col>
-              <Col md={2}><AsakaBtn onClick={setMode} value="normal"> Normal</AsakaBtn></Col>
-              <Col md={2}><AsakaBtn onClick={setMode} value="hard"> Hard</AsakaBtn></Col>
-            </Row>
-            <br/>
-            <Form>
-            <Row className="justify-content-md-center bets">
-              <h2>BET</h2> 
-              <Col  sm={2} ><AsakaRadio onClick={setaBet} value={0.1} type="radio" name="group1" label="0.1 SOL" /></Col>
-              <Col  sm={2}><AsakaRadio onClick={setaBet} value={0.5} type="radio" name="group1" label="0.5 SOL" /></Col>
-              <Col  sm={2} ><AsakaRadio onClick={setaBet} value={1} type="radio" name="group1" label="1 SOL" /></Col>
-            </Row>
-            </Form>
-          <br/>
-          <Row>
-          <Col><AsakaBtn onClick={startGame} > Pay</AsakaBtn></Col>
-          </Row>
+          <AsakaBtn className="btnFrom" onClick={startGame} > Play</AsakaBtn>
           </div>
           )
           }
@@ -527,13 +525,173 @@ const ClassicMod = (props) => {
         {
           aRow.map((val, idx) =>{
             return(
-              <RevealBtn lose={props.lose} win={props.win} game={props.game} key={(((i) * (5)) + idx)} akey={(((i) * (5)) + idx).toString()} index={((i) * (5)) + idx} reveal={props.reveal}/>
+              <RevealBtn popper={props.popper} lose={props.lose} win={props.win} game={props.game} key={(((i) * (5)) + idx)} akey={(((i) * (5)) + idx).toString()} index={((i) * (5)) + idx} reveal={props.reveal}/>
             )
           })
         }
       </Row>
       )
     }))
+  )
+}
+
+const ClaimContainer = (props) => {
+  const [popped, setPopped] = useState(null)
+  const [ratio, setRatio] = useState(null)
+
+
+  function getRatio(val) {
+    let ratio;
+    switch (props.mode) {
+      case "easy": {
+        switch (val) {
+          case 1:
+            ratio = 1.01;
+            break;
+          case 2:
+            ratio = 1.08;
+            break;
+          case 3:
+            ratio = 1.12;
+            break;
+          case 4:
+            ratio = 1.18;
+            break;
+          case 5:
+            ratio = 1.24;
+            break;
+          case 6:
+            ratio = 1.3;
+            break;
+          case 7:
+            ratio = 1.37;
+            break;
+          case 8:
+            ratio = 1.47;
+            break;
+          case 9:
+            ratio = 1.55;
+            break;
+          case 10:
+            ratio = 1.65;
+            break;
+          case 11:
+            ratio = 1.77;
+            break;
+          case 12:
+            ratio = 1.9;
+            break;
+          default:
+            break;
+        }; break;
+      }
+      case "normal": {
+        switch (val) {
+          case 1:
+            ratio = 1.12;
+            break;
+          case 2:
+            ratio = 1.29;
+            break;
+          case 3:
+            ratio = 1.48;
+            break;
+          case 4:
+            ratio = 1.71;
+            break;
+          case 5:
+            ratio = 2.0;
+            break;
+          case 6:
+            ratio = 2.35;
+            break;
+          case 7:
+            ratio = 2.79;
+            break;
+          case 8:
+            ratio = 3.35;
+            break;
+          case 9:
+            ratio = 4.05;
+            break;
+          case 10:
+            ratio = 5.0;
+            break;
+          case 11:
+            ratio = 6.17;
+            break;
+          case 12:
+            ratio = 7.4;
+            break;
+          default:
+            break;
+        }; break;
+      }
+      case "hard": {
+        switch (val) {
+          case 1:
+            ratio = 1.24;
+            break;
+          case 2:
+            ratio = 1.56;
+            break;
+          case 3:
+            ratio = 2.0;
+            break;
+          case 4:
+            ratio = 2.58;
+            break;
+          case 5:
+            ratio = 3.23;
+            break;
+          case 6:
+            ratio = 4.52;
+            break;
+          case 7:
+            ratio = 5.89;
+            break;
+          case 8:
+            ratio = 6.4;
+            break;
+          case 9:
+            ratio = 8.5;
+            break;
+          case 10:
+            ratio = 12.1;
+            break;
+          default:
+            break;
+        }; break;
+      }
+      default:
+        break;
+    }
+    setRatio(ratio)
+  }
+
+  useEffect(() => {
+    const poppedPing = async () => {
+      let query = new Moralis.Query("Game");
+      query.equalTo("objectId", props.gameId)
+      query.select("popped")
+      let subscription = await query.subscribe();
+      subscription.on("update",(object) => {
+        console.log(object)
+        //setPopped(object.get("popped"))
+        getRatio(object.get("popped"))
+      })};
+
+    if(props.start && props.generated && (props.board || props.bubbles)){
+      poppedPing()
+    }
+  },[props.start, props.generated, props.board, props.bubbles]) 
+  
+  return(
+    <div className='gameForm'>
+    <h2 className='rew'>Rewards</h2>
+    <h4 >{props.bet} x {ratio} SOL</h4>
+      <AsakaBtn onClick={props.win}> Claim </AsakaBtn>
+  </div>
   )
 }
 

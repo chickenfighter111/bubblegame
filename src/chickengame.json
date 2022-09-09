@@ -11,9 +11,14 @@
           "isSigner": false
         },
         {
-          "name": "player",
+          "name": "signer",
           "isMut": true,
           "isSigner": true
+        },
+        {
+          "name": "player",
+          "isMut": false,
+          "isSigner": false
         },
         {
           "name": "systemProgram",
@@ -81,6 +86,36 @@
       ]
     },
     {
+      "name": "depositz",
+      "accounts": [
+        {
+          "name": "anAccount",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "player",
+          "isMut": true,
+          "isSigner": true
+        },
+        {
+          "name": "systemProgram",
+          "isMut": false,
+          "isSigner": false
+        }
+      ],
+      "args": [
+        {
+          "name": "lamportz",
+          "type": "u64"
+        },
+        {
+          "name": "mode",
+          "type": "string"
+        }
+      ]
+    },
+    {
       "name": "lose",
       "accounts": [
         {
@@ -131,6 +166,37 @@
         }
       ],
       "args": []
+    },
+    {
+      "name": "winz",
+      "accounts": [
+        {
+          "name": "treasuryAccount",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "anAccount",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "player",
+          "isMut": true,
+          "isSigner": true
+        },
+        {
+          "name": "systemProgram",
+          "isMut": false,
+          "isSigner": false
+        }
+      ],
+      "args": [
+        {
+          "name": "popped",
+          "type": "u8"
+        }
+      ]
     },
     {
       "name": "withdraw",
@@ -224,6 +290,10 @@
           {
             "name": "deposit",
             "type": "u64"
+          },
+          {
+            "name": "mode",
+            "type": "string"
           },
           {
             "name": "bump",

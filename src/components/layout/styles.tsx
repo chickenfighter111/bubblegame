@@ -138,10 +138,18 @@ export const DarkModal = styled(Modal)`
 
 export const StyledSelect = styled(Form.Select)`
   margin-top: 10px;
-  width: 140px;
+  max-width: 160px;
+  width: 100%;
   background-color: #FFD966 !important;
   box-shadow: -3px 3px orange, -2px 2px orange, -1px 1px orange;
   border: 1px solid black;
+  margin-bottom:20px;
+  margin-left: 10px;
+
+  display: flex !important;
+  justify-content: center !important;
+  align-items: center !important;
+
   &:hover {
     background-color: #97803a !important;
     color: #ffffff !important;
@@ -160,6 +168,9 @@ export const StyledSelect = styled(Form.Select)`
       color: #000000 !important;
 
     }
+  }
+  .gameMod:hover{
+    background-color: #97803a
   }
 `
 

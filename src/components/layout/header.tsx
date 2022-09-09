@@ -28,9 +28,12 @@ const NavContainer = styled(Container)`
   min-width: 98vw;
 `
 const DDMenu = styled(Dropdown.Menu)`
-  background-color: #282c34;
+  background-color: #FFD966;
   a{
-    color: #FFD966
+    color: #000000
+  }
+  a:hover{
+    background-color: #97803a
   }
 `
 
