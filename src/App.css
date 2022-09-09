@@ -119,7 +119,8 @@ option:hover{
 }
 
 .centered{
-  margin-top: 10vh !important;
+  margin-top: 5vh !important;
+  margin-bottom: 5vh !important;
 }
 
 .btnFrom{
