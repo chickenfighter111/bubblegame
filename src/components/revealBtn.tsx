@@ -4,10 +4,20 @@ import React,{useState, useMemo, useEffect} from 'react';
 import Moralis from "moralis";
 import {FaBomb} from 'react-icons/fa'
 
+import AOS from "aos";
+import "aos/dist/aos.css";
+
 const RevealBtn = (props) =>{
     const [reveal, setReveal] = useState(false)
     const [bomb, setBomb] = useState(false)
 
+    useEffect(() => {
+        AOS.init({ 
+          duration: 1500,
+          offset:0,
+          once: true
+        });
+      }, []);
 
     const revealBtn = async() =>{
         const audio = document.getElementById("click");
@@ -19,7 +29,6 @@ const RevealBtn = (props) =>{
             setReveal(true)
         }
         else{
-            setBomb(true)
             props.lose()
         }
     }
@@ -28,9 +37,9 @@ const RevealBtn = (props) =>{
         <Col key={props.akey} className='cardCol' md={2}>
             {
                 !reveal ? 
-                (<div>
+                (<div >
                     {!bomb ? 
-                    <Cardbtn value={props.index} onClick={revealBtn} className='aCard'><h2>?</h2></Cardbtn>
+                    <Cardbtn data-aos="flip-left" data-aos-easing="ease-in-out" value={props.index} onClick={revealBtn} className='aCard'><h2>?</h2></Cardbtn>
                     : 
                     <Cardbtn value={props.index} className='aCard'><FaBomb size={30}/></Cardbtn>
                     }

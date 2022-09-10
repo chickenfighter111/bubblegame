@@ -128,11 +128,12 @@ export const DarkModal = styled(Modal)`
   .modal-footer{
     border-color: #FFD966;
   }
-  
-  div{
-    div{
-      background-color: #282c34
-    }
+  .modal-content{
+    background-image: linear-gradient(
+      to bottom,
+      #02345f 0,
+      #000c18 100%
+    )
   }
 `
 

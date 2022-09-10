@@ -21,6 +21,9 @@
   border-style: solid !important;
   border-top: none !important;
   border-bottom: none !important;
+  
+  border-bottom-right-radius: 20px;
+  border-bottom-left-radius: 20px;
 }
 
 .gameForm{
@@ -37,6 +40,10 @@
   height: 100%;
   border-left: none;
   border-right: none;
+  
+  border-radius: 20px;
+
+
 }
 
 .burando{

@@ -23,6 +23,7 @@ import winAudio from './components/layout/media/winz.wav';
 import loseAudio from './components/layout/media/lose.mp3';
 import clickAudio from './components/layout/media/clicz.wav';
 
+
 import {NoFundsPopper} from './components/layout/popup'
 
 const ContainerRow = styled(Row)`
@@ -44,6 +45,7 @@ function App(props) {
   const [bubbles, setBubbles] = useState<any>(null)
 
   const [start, setStart] = useState(false)
+  const [ended, setEnded] = useState(false)
   const [generated, setGen] = useState(false)
   const [gameId, setGameId] = useState(null)
   const [gameMod, setGame] = useState("bubble")
@@ -51,7 +53,7 @@ function App(props) {
   const [numBub, setNumBub] = useState(null)
   const [n, setN] = useState(null)
   const [bet, setBet] = useState(0.1)
-  const [popped, setPopped] = useState(0)
+  const [popped, setPopped] = useState(false)
   const [mode, setDifficulty] = useState("easy")
 
   const [noFunds, setNoFunds] = useState(false);
@@ -79,7 +81,6 @@ function App(props) {
   });
   const program = new Program(idl as Idl, idl.metadata.address, provider);
 
-
   async function initTrez(){
     let [treasuryPDA, abump] = await web3.PublicKey.findProgramAddress(
       [utf8.encode("treazury_wallet").buffer], program.programId);
@@ -95,32 +96,11 @@ function App(props) {
     }
   }
 
-  function generateBubbles(){
-    var rngs: number[] = [];
-    while(rngs.length < 5){
-        var r = Math.floor(Math.random() * 5);
-        if(rngs.indexOf(r) === -1) rngs.push(r);
-    }
-    return rngs
-  }
-
-  function generateFillRandom(){
-    const zeros = new Array(25).fill(0)
-    /*var rngs: number[] = [];
-    while(rngs.length < 5){
-        var r = Math.floor(Math.random() * 25);
-        if(rngs.indexOf(r) === -1) rngs.push(r);
-    }
-
-    rngs.forEach((rng: number) => {
-      zeros[rng] = 1;
-    }) */
-
-    return zeros
-  }
-
   function generate2DFillRandom(){
-
+    function generateFillRandom(){
+      const zeros = new Array(25).fill(0)
+      return zeros
+    }
     const rarray = generateFillRandom()
     const newArr:any[] = [];
 
@@ -129,7 +109,6 @@ function App(props) {
     }
     
     setBoard(newArr)
-    //console.log(newArr)
     return newArr
   }
 
@@ -153,19 +132,6 @@ function App(props) {
     return bytes.buffer;
   }
 
-  function checkIntegrity(b1:any[][], b2:any[][]){
-    var correct = true;
-    for(let y = 0; y < n; y++){
-      for (let x = 0; x < n; x++){
-        if( b1[y][x] !== b2[y][x]){
-          correct = false
-        }
-      }
-    }
-    //console.log(correct)
-    return correct
-  }
-
   async function genCloudBoard(){
     if (!generated){
       const playerId = Moralis.User.current().id
@@ -186,13 +152,14 @@ function App(props) {
   async function reset(){
     if (gameId){
       setStart(false)
+      setEnded(false)
       setGen(false)
       setBubbles(null)
       setBoard(null)
 
       setN(null)
       setNumBub(null)
-      setPopped(0)
+      setPopped(false)
       const params = {game: gameId};
       await Moralis.Cloud.run("reset", params);
     }
@@ -277,9 +244,11 @@ function App(props) {
       tx.recentBlockhash = (await aConnection.getLatestBlockhash('finalized')).blockhash;
       const sig = await sendAndConfirmTransaction(connection, tx, [escrowWallet], {commitment: "processed"});
       //console.log("losing sigature", sig)
-      await reset()
       const msg = `${aUser.getUsername()} lost ${bet} SOL... :( `
       await Moralis.Cloud.run("addAnnouncement", {msg: msg});
+      setEnd()
+
+
       //console.log("losing done")
      // const pacc = await program.account.gameAccount.fetch(playerPDA);
       //console.log(pacc.deposit.toNumber()/LAMPORTS_PER_SOL)
@@ -287,6 +256,7 @@ function App(props) {
     catch(err){
    //   console.log(err)
     }
+    await reset()
   }
 
   //if we win, bet is transferred from treasury to escrow, then total is transferred to player wallet
@@ -307,9 +277,6 @@ function App(props) {
     const treasurePDA = new web3.PublicKey(tres);
     //const player = Moralis.User.current()
     //console.log(playerPDA.toBase58())
-
-
-
     //const won: boolean = await Moralis.Cloud.run("checkWinner", {game: gameId});
     try{
       const tx = await program.methods.winz(await Moralis.Cloud.run("checkWinner", {game: gameId}) as number) //.win()
@@ -328,20 +295,20 @@ function App(props) {
       getBalance()
       const msg = `${aUser.getUsername()} won ${bet} SOL! Sheeesh`
       await Moralis.Cloud.run("addAnnouncement", {msg: msg});
-      await reset()
-      const pacc = await program.account.gameAccount.fetch(playerPDA);
+     // const pacc = await program.account.gameAccount.fetch(playerPDA);
+      setEnd()
       //console.log(pacc)
     }
     catch(err){
      // console.log(err)
     }
-  }
+    await reset()
 
+  }
 
   const Bubbles = (props) => {
      return <Stage bubbles={bubbles} bubbleCount={n} numBub={numBub} game={props.game} win={win} lose={lose}/>
   }
-
 
   const setMode = (event) =>{
     const mode = event.target.value;
@@ -356,6 +323,10 @@ function App(props) {
   const setaBet = (event) =>{
     const value = event.target.value;
     setBet(value)
+  }
+
+  const setEnd = () => {
+    setEnded(true)
   }
 
   const reveal = async() =>{
@@ -383,16 +354,19 @@ function App(props) {
     }
   }
 
+  const popping = (val) =>{
+    setPopped(val)
+  }
+
   useEffect(() => {
     if(start){
       genCloudBoard();
     }
   },[start])
-
-
  
 
   const MainContainer = () => {
+
     return (
       <Container>
         <div className="mainContainer">
@@ -413,15 +387,20 @@ function App(props) {
             />
             {(gameMod === "bubble") ? <Bubbles game={gameId}/> 
             : (
-              <div>
+              <div >
                 {board ? 
-                <div className="centered"><ClassicMod game={gameId} reveal={reveal} board={board} win={win} lose={lose}/></div>
+                  <div className="centered" >
+                    <ClassicMod setEnded={setEnd} ended={ended} game={gameId} 
+                      reveal={reveal} board={board} win={win} lose={lose} setPop={popping}/>
+                  </div>
                 : null
                 }
               </div>
             )
             }
-             <ClaimContainer mode={mode} gameId={gameId} start={start} generated={generated} board={board} bubbles={bubbles} bet={bet} win={win} popped={popped}/>
+             <ClaimContainer setEnd={setEnd} ended={ended} mode={mode}
+              gameId={gameId} start={start} generated={generated} board={board} 
+              bubbles={bubbles} bet={bet} win={win} popped={popped} setPop={popping}/>
           </div>) : 
           (
           <div className='gameForm'>
@@ -467,11 +446,11 @@ function App(props) {
 }
 
 const Announcements = (props) => {
-  const [announcements, setAnnouncements] = useState<string[]>([])
+  const [announcements, setAnnouncements] = useState<any[]>([])
 
-  function addAnnouncement(msg: string){
-    announcements.shift()
-    announcements.push(msg)
+  function addAnnouncement(msg: any){
+    announcements.pop()
+    announcements.unshift(msg)
   }
 
   async function getAnnouncements(){
@@ -484,8 +463,7 @@ const Announcements = (props) => {
       let query = new Moralis.Query("Announcement");
       let subscription = await query.subscribe();
       subscription.on("create",(object) => {
-        if(announcements.length === 15) addAnnouncement(object.get("msg"))
-        else announcements.push(object.get("msg"))
+        if(announcements.length === 10) addAnnouncement(object)
       });
   };
     if (props.connected){
@@ -510,7 +488,7 @@ const Announcements = (props) => {
                     announcements.map((ann: any, idx:number) => {
                     return(
                       <tr key={idx}>
-                         <td colSpan={5}><p>{ann.msg}</p></td>
+                         <td colSpan={5}><p>{ann.get("msg")}</p></td>
                       </tr>
                     )
                   })
@@ -522,14 +500,18 @@ const Announcements = (props) => {
 }
 
 const ClassicMod = (props) => {
+
   return(
     (props.board.map((aRow, i) => {
       return(
-        <Row key={i} className='justify-content-md-center chickens'>
+        <Row   key={i} className='justify-content-md-center chickens'>
         {
           aRow.map((val, idx) =>{
             return(
-              <RevealBtn popper={props.popper} lose={props.lose} win={props.win} game={props.game} key={(((i) * (5)) + idx)} akey={(((i) * (5)) + idx).toString()} index={((i) * (5)) + idx} reveal={props.reveal}/>
+              <RevealBtn setEnded={props.setEnded} ended={props.ended} 
+              popper={props.popper} lose={props.lose} win={props.win} game={props.game} 
+              key={(((i) * (5)) + idx)} akey={(((i) * (5)) + idx).toString()} index={((i) * (5)) + idx} 
+              reveal={props.reveal}/>
             )
           })
         }
@@ -540,8 +522,9 @@ const ClassicMod = (props) => {
 }
 
 const ClaimContainer = (props) => {
-  const [popped, setPopped] = useState(null)
+  const [popped, setPopped] = useState(0)
   const [ratio, setRatio] = useState(null)
+  const [updated, setUpdated] = useState(false)
 
 
   function getRatio(val) {
@@ -671,30 +654,36 @@ const ClaimContainer = (props) => {
         break;
     }
     setRatio(ratio)
+    setUpdated(true)
   }
 
   useEffect(() => {
     const poppedPing = async () => {
       let query = new Moralis.Query("Game");
       query.equalTo("objectId", props.gameId)
+      //query.equalTo("popped", popped)
       query.select("popped")
       let subscription = await query.subscribe();
       subscription.on("update",(object) => {
-        console.log(object)
+        const newVal = object.get("popped")
+        
         //setPopped(object.get("popped"))
-        getRatio(object.get("popped"))
-      })};
+        if(newVal !== popped){
+          getRatio(newVal)
+        }
+      })
+    };
 
-    if(props.start && props.generated && (props.board || props.bubbles)){
+    if(props.start && props.generated && (props.board || props.bubbles) && props.popped){
       poppedPing()
     }
-  },[props.start, props.generated, props.board, props.bubbles]) 
+  },[props.start, props.generated,  props.board, props.bubbles]) 
   
   return(
     <div className='gameForm'>
     <h2 className='rew'>Rewards</h2>
     <h4 >{props.bet} x {ratio} SOL</h4>
-      <AsakaBtn onClick={props.win}> Claim </AsakaBtn>
+      <AsakaBtn onClick={props.win} disabled={props.ended}> Claim </AsakaBtn>
   </div>
   )
 }
