@@ -24,7 +24,7 @@ import loseAudio from './components/layout/media/lose.mp3';
 import clickAudio from './components/layout/media/clicz.wav';
 
 
-import {NoFundsPopper} from './components/layout/popup'
+import {NoFundsPopper, WinPopper, LosePopper} from './components/layout/popup'
 
 const ContainerRow = styled(Row)`
   max-width: 99vw
@@ -57,7 +57,9 @@ function App(props) {
   const [mode, setDifficulty] = useState("easy")
 
   const [noFunds, setNoFunds] = useState(false);
-
+  const [resultPopper, setResPopper] = useState(false);
+  const [losePopper, setLosePopper] = useState(false);
+  const [canClose, setCanClose] = useState(false);
 
   const { logout, isAuthenticated, authenticate } = useMoralis();
 
@@ -231,6 +233,7 @@ function App(props) {
     let [playerPDA, accBump] = await web3.PublicKey.findProgramAddress(
       [utf8.encode("escrow_wallet").buffer, escrowWallet.publicKey.toBuffer()], program.programId);
     const treasurePDA = new web3.PublicKey(tres);
+    losePop()
     try{
       const tx = await program.methods.lose()
       .accounts({
@@ -247,7 +250,7 @@ function App(props) {
       const msg = `${aUser.getUsername()} lost ${bet} SOL... :( `
       await Moralis.Cloud.run("addAnnouncement", {msg: msg});
       setEnd()
-
+      setCanClose(true)
 
       //console.log("losing done")
      // const pacc = await program.account.gameAccount.fetch(playerPDA);
@@ -256,7 +259,6 @@ function App(props) {
     catch(err){
    //   console.log(err)
     }
-    await reset()
   }
 
   //if we win, bet is transferred from treasury to escrow, then total is transferred to player wallet
@@ -275,9 +277,7 @@ function App(props) {
     let [playerPDA, accBump] = await web3.PublicKey.findProgramAddress(
       [utf8.encode("escrow_wallet").buffer, escrowWallet.publicKey.toBuffer()], program.programId);
     const treasurePDA = new web3.PublicKey(tres);
-    //const player = Moralis.User.current()
-    //console.log(playerPDA.toBase58())
-    //const won: boolean = await Moralis.Cloud.run("checkWinner", {game: gameId});
+    winPop()
     try{
       const tx = await program.methods.winz(await Moralis.Cloud.run("checkWinner", {game: gameId}) as number) //.win()
       .accounts({
@@ -290,19 +290,19 @@ function App(props) {
       tx.feePayer = escrowWallet.publicKey;
       tx.recentBlockhash = (await aConnection.getLatestBlockhash('finalized')).blockhash;
       const sig = await sendAndConfirmTransaction(connection, tx, [escrowWallet], {commitment: "processed"});
-     // console.log(sig)
-      //const pacc = await program.account.gameAccount.fetch(playerPDA);
+
       getBalance()
       const msg = `${aUser.getUsername()} won ${bet} SOL! Sheeesh`
       await Moralis.Cloud.run("addAnnouncement", {msg: msg});
-     // const pacc = await program.account.gameAccount.fetch(playerPDA);
       setEnd()
+      setCanClose(true)
+
+     // const pacc = await program.account.gameAccount.fetch(playerPDA);
       //console.log(pacc)
     }
     catch(err){
      // console.log(err)
     }
-    await reset()
 
   }
 
@@ -358,6 +358,14 @@ function App(props) {
     setPopped(val)
   }
 
+  const winPop = () =>{
+    setResPopper(true)
+  }
+
+  const losePop = () =>{
+    setLosePopper(true)
+  }
+
   useEffect(() => {
     if(start){
       genCloudBoard();
@@ -371,6 +379,18 @@ function App(props) {
       <Container>
         <div className="mainContainer">
           <NoFundsPopper noFunds={noFunds} close={() => setNoFunds(false)} />
+          <WinPopper noFunds={resultPopper} close={async () => {
+            if(canClose){
+              setResPopper(false)
+              await reset()
+            }
+          }} />
+          <LosePopper noFunds={losePopper} close={async() => {
+            if(canClose){
+              setLosePopper(false)
+              await reset()
+            }
+          }} />
           {start && bubbles && gameId ? 
           (<div>
              <audio
