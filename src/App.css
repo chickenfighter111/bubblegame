@@ -73,6 +73,12 @@
   max-height: 60vh;
 }
 
+.btn-primary{
+  background-color: #FFD966 !important;
+  box-shadow: -3px 3px orange, -2px 2px orange, -1px 1px orange;
+  border: 1px solid black !important;
+}
+
 .btn-primary:hover, .btn-primary:focus{
     background-color: #97803a !important;
     border-color: #000000;
@@ -101,6 +107,10 @@ option:hover{
 }
 
 .aCard{
+  background-image: url("./components/layout/media/asaka.png");
+  background-size: 6vw 11vh;
+  background-position: center;
+  background-repeat: no-repeat;
   width: 8vw !important;
   height: 13vh !important;
 }

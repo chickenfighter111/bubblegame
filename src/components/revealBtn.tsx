@@ -4,6 +4,8 @@ import React,{useState, useMemo, useEffect} from 'react';
 import Moralis from "moralis";
 import {FaBomb} from 'react-icons/fa'
 
+import logo from './layout/media/asaka.png'
+
 import AOS from "aos";
 import "aos/dist/aos.css";
 
@@ -39,7 +41,7 @@ const RevealBtn = (props) =>{
                 !reveal ? 
                 (<div >
                     {!bomb ? 
-                    <Cardbtn data-aos="flip-left" data-aos-easing="ease-in-out" value={props.index} onClick={revealBtn} className='aCard'><h2>?</h2></Cardbtn>
+                    <Cardbtn data-aos="flip-left" data-aos-easing="ease-in-out" value={props.index} onClick={revealBtn} className='aCard'></Cardbtn>
                     : 
                     <Cardbtn value={props.index} className='aCard'><FaBomb size={30}/></Cardbtn>
                     }

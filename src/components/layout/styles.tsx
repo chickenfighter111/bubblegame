@@ -176,6 +176,7 @@ export const StyledSelect = styled(Form.Select)`
 `
 
 export const Cardbtn = styled(Button)`
+
   color: #000000 !important;
   margin-left: 10px;
   margin-right: 10px;
@@ -186,6 +187,16 @@ export const Cardbtn = styled(Button)`
   &:hover{
     margin-top: 10px;
     color: #ffffff !important;
+    background-color: #97803a !important;
+    border-color: #000000;
+    box-shadow: #FFD966
+  }
+  &:focus{
+    margin-top: 10px;
+    color: #ffffff !important;
+    background-color: #97803a !important;
+    border-color: #000000;
+    box-shadow: #FFD966
   }
   position:relative
 `
