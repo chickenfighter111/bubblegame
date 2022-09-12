@@ -61,8 +61,6 @@ class Stage extends Component {
   }
 
   lose(){
-    const audio = document.getElementById("lose");
-    audio.play();
     this.props.lose()
     this.resetBubbles()
   }
