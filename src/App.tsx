@@ -216,41 +216,6 @@ function App(props) {
     }
   }
 
-  const fund = async () => {
-    const aUser = Moralis.User.current()
-    const walletQry = new Moralis.Query("Wallet")
-    walletQry.equalTo("owner", aUser.id)
-    const aWallet = await walletQry.first()
-
-    const playerBuff = _base64ToArrayBuffer(aWallet.get("key"))
-    const u8int = new Uint8Array(playerBuff)
-    const escrowWallet = Keypair.fromSecretKey(u8int)
-
-    let [playerPDA, accBump] = await web3.PublicKey.findProgramAddress(
-      [utf8.encode("escrow_wallet").buffer, escrowWallet.publicKey.toBuffer()], program.programId);
-   // const playerPDA = new web3.PublicKey(escrowWallet.publicKey);
-
-    try{
-      const tx = await program.methods.depositz(new BN((LAMPORTS_PER_SOL*15) -(0.0001 * LAMPORTS_PER_SOL)), mode.toLowerCase())
-      .accounts({
-        player: escrowWallet.publicKey, //from
-        anAccount: playerPDA
-      }).transaction() //.signers([escrowWallet]).rpc()
-
-      const aConnection = new web3.Connection(network, 'finalized');
-      tx.feePayer = escrowWallet.publicKey;
-      tx.recentBlockhash = (await aConnection.getLatestBlockhash('finalized')).blockhash;
-      const sig = await sendAndConfirmTransaction(connection, tx, [escrowWallet]);
-     // console.log("Deposit signature ",sig)
-      const pacc = await program.account.gameAccount.fetch(playerPDA);
-     // console.log(pacc)
-      getBalance()
-    }
-    catch(err){
-    //  console.log(err)
-    }
-  }
-
   //if we lose, funds gets transferred from escrow to treasury
   const lose = async () => {
     const audio = document.getElementById("lose");
@@ -472,6 +437,7 @@ function App(props) {
               <Col sm={3}><h2>BET</h2> 
               <Container><StyledSelect size="lg" value={bet} onChange={setaBet}>
                 <option value={0.1}>0.1 SOL</option>
+                <option value={0.25}>0.25 SOL</option>
                 <option value={0.5}>0.5 SOL</option>
                 <option value={1}>1 SOL</option>
               </StyledSelect></Container>
