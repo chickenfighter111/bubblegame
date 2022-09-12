@@ -173,7 +173,7 @@ function App(props) {
       const escrow = new web3.PublicKey(playerPDA)
       try {
         let balance = await aconnection.getBalance(escrow);
-        props.setBalance(Math.round((balance / LAMPORTS_PER_SOL)  * 100) / 100);
+        props.setbalance(Math.round((balance / LAMPORTS_PER_SOL)  * 100) / 100);
 
       } catch (err) {
       }
@@ -206,13 +206,13 @@ function App(props) {
       tx.feePayer = escrowWallet.publicKey;
       tx.recentBlockhash = (await aConnection.getLatestBlockhash('finalized')).blockhash;
       const sig = await sendAndConfirmTransaction(connection, tx, [escrowWallet]);
-      //console.log("Deposit signature ",sig)
+      console.log("Deposit signature ",sig)
       const pacc = await program.account.gameAccount.fetch(playerPDA);
      // console.log(pacc)
       getBalance()
     }
     catch(err){
-    //  console.log(err)
+     console.log(err)
     }
   }
 
@@ -299,7 +299,7 @@ function App(props) {
       //console.log(pacc)
     }
     catch(err){
-     // console.log(err)
+      console.log(err)
     }
 
   }
@@ -403,10 +403,10 @@ function App(props) {
                 id="click"
                 src={clickAudio}
             />
-            {(gameMod === "bubble") ? <Bubbles game={gameId}/> 
+            {(gameMod === "bubble" && !ended) ? <Bubbles game={gameId}/> 
             : (
               <div >
-                {board ? 
+                {board  && !ended ? 
                   <div className="centered" >
                     <ClassicMod setEnded={setEnd} ended={ended} game={gameId} 
                       reveal={reveal} board={board} win={win} lose={lose} setPop={popping}/>
@@ -675,7 +675,7 @@ const ClaimContainer = (props) => {
         break;
     }
     setRatio(ratio)
-    setUpdated(true)
+   // setUpdated(true)
   }
 
   useEffect(() => {
@@ -695,7 +695,7 @@ const ClaimContainer = (props) => {
       })
     };
 
-    if(props.start && props.generated && (props.board || props.bubbles) && props.popped){
+    if(props.start && props.generated && (props.board || props.bubbles)){
       poppedPing()
     }
   },[props.start, props.generated,  props.board, props.bubbles]) 
@@ -704,7 +704,7 @@ const ClaimContainer = (props) => {
     <div className='gameForm'>
     <h2 className='rew'>Rewards</h2>
     <h4 >{props.bet} x {ratio} SOL</h4>
-      <AsakaBtn onClick={props.win} disabled={props.ended}> Claim </AsakaBtn>
+      <AsakaBtn onClick={props.win}> Claim </AsakaBtn>
   </div>
   )
 }
