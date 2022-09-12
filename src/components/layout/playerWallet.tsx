@@ -40,7 +40,7 @@ function PlayerWallet() {
     if (username) {
       await create_player_wallet().then(() => {
         alert("Player wallet created!")
-       // window.location.reload()
+        window.location.reload()
       })
 
     }
