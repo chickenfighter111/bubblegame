@@ -23,6 +23,7 @@ import winAudio from './components/layout/media/winz.wav';
 import loseAudio from './components/layout/media/lose.mp3';
 import clickAudio from './components/layout/media/clicz.wav';
 
+import useSound from 'use-sound';
 
 import {NoFundsPopper, WinPopper, LosePopper} from './components/layout/popup'
 
@@ -60,6 +61,9 @@ function App(props) {
   const [resultPopper, setResPopper] = useState(false);
   const [losePopper, setLosePopper] = useState(false);
   const [canClose, setCanClose] = useState(false);
+
+  const [winSound] = useSound(winAudio, {volume: 0.3});
+  const [loseSound] = useSound(loseAudio, {volume: 0.3});
 
   const { logout, isAuthenticated, authenticate } = useMoralis();
 
@@ -222,8 +226,7 @@ function App(props) {
 
   //if we lose, funds gets transferred from escrow to treasury
   const lose = async () => {
-    const audio = document.getElementById("lose");
-    audio.play();
+
     const aUser = Moralis.User.current()
     const walletQry = new Moralis.Query("Wallet")
     walletQry.equalTo("owner", aUser.id)
@@ -273,8 +276,6 @@ function App(props) {
 
   //if we win, bet is transferred from treasury to escrow, then total is transferred to player wallet
   const win = async () => {
-    const audio = document.getElementById("win");
-    audio.play();
     const aUser = Moralis.User.current()
     const walletQry = new Moralis.Query("Wallet")
     walletQry.equalTo("owner", aUser.id)
@@ -376,10 +377,12 @@ function App(props) {
 
   const winPop = () =>{
     setResPopper(true)
+    winSound()
   }
 
   const losePop = () =>{
     setLosePopper(true)
+    loseSound()
   }
 
   useEffect(() => {
