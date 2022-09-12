@@ -206,13 +206,13 @@ function App(props) {
       tx.feePayer = escrowWallet.publicKey;
       tx.recentBlockhash = (await aConnection.getLatestBlockhash('finalized')).blockhash;
       const sig = await sendAndConfirmTransaction(connection, tx, [escrowWallet]);
-      console.log("Deposit signature ",sig)
+    //  console.log("Deposit signature ",sig)
       const pacc = await program.account.gameAccount.fetch(playerPDA);
      // console.log(pacc)
       getBalance()
     }
     catch(err){
-     console.log(err)
+    // console.log(err)
     }
   }
 
@@ -244,7 +244,7 @@ function App(props) {
       tx.feePayer = escrowWallet.publicKey;
       tx.recentBlockhash = (await aConnection.getLatestBlockhash('finalized')).blockhash;
       const sig = await sendAndConfirmTransaction(connection, tx, [escrowWallet], {commitment: "processed"});
-      console.log("losing sigature", sig)
+    //  console.log("losing sigature", sig)
       const msg = `${aUser.getUsername()} lost ${bet} SOL... :( `
       await Moralis.Cloud.run("addAnnouncement", {msg: msg});
       setEnd()
@@ -255,7 +255,7 @@ function App(props) {
       //console.log(pacc.deposit.toNumber()/LAMPORTS_PER_SOL)
     }
     catch(err){
-      console.log(err)
+     // console.log(err)
     }
   }
 
@@ -299,7 +299,7 @@ function App(props) {
       //console.log(pacc)
     }
     catch(err){
-      console.log(err)
+    //  console.log(err)
     }
 
   }
