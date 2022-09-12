@@ -63,8 +63,6 @@ function App(props) {
 
   const { logout, isAuthenticated, authenticate } = useMoralis();
 
-
-  const treasury = "2JM2X3J1JnQ7kRvLg1vF5rbNw1Hrg6AhPHx1BoQJESho"
   const tres = "GFkgJ17mQJTx91xCcZvbKqhAYQStTUHWQBqeWJZnoDjT"
   //const escrowPDA = "FQw2TgLrfvGo92eAtXXC63amvUY9b6FnECwYPAmPfMS7"
 
@@ -91,10 +89,10 @@ function App(props) {
         treasuryAccount: treasuryPDA,
         player: anchorWallet.publicKey
       }).rpc()
-    //  console.log(treasuryPDA.toBase58())
+      console.log(treasuryPDA.toBase58())
     }
     catch(err){
-    //  console.log(err)
+      console.log(err)
     }
   }
 
@@ -131,6 +129,7 @@ function App(props) {
     for (var i = 0; i < len; i++) {
         bytes[i] = binary_string.charCodeAt(i);
     }
+    console.log(bytes)
     return bytes.buffer;
   }
 
@@ -445,6 +444,8 @@ function App(props) {
               </Col>
             </Row>
           <AsakaBtn className="btnFrom" onClick={startGame} > Play</AsakaBtn>
+          <AsakaBtn onClick={initTrez}> Init </AsakaBtn>
+
           </div>
           )
           }
