@@ -64,7 +64,8 @@ border: 1px solid black;
   color: #ffffff !important;
   border-color: #000000;
   box-shadow: -3px 3px orange, -2px 2px orange, -1px 1px orange;
-  border: 1px solid orange;
+  border: 1px solid black;
+
 }
 &:focus{
   background-color: #97803a;
