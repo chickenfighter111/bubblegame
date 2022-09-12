@@ -89,10 +89,10 @@ function App(props) {
         treasuryAccount: treasuryPDA,
         player: anchorWallet.publicKey
       }).rpc()
-      console.log(treasuryPDA.toBase58())
+     // console.log(treasuryPDA.toBase58())
     }
     catch(err){
-      console.log(err)
+     // console.log(err)
     }
   }
 
@@ -444,8 +444,6 @@ function App(props) {
               </Col>
             </Row>
           <AsakaBtn className="btnFrom" onClick={startGame} > Play</AsakaBtn>
-          <AsakaBtn onClick={initTrez}> Init </AsakaBtn>
-
           </div>
           )
           }
