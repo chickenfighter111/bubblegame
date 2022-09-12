@@ -195,6 +195,9 @@ function App(props) {
       [utf8.encode("escrow_wallet").buffer, escrowWallet.publicKey.toBuffer()], program.programId);
    // const playerPDA = new web3.PublicKey(escrowWallet.publicKey);
 
+   //DISABLED FOR BETA
+/*
+
     try{
       const tx = await program.methods.depositz(new BN((LAMPORTS_PER_SOL*bet) -(0.0001 * LAMPORTS_PER_SOL)), mode.toLowerCase())
       .accounts({
@@ -206,14 +209,15 @@ function App(props) {
       tx.feePayer = escrowWallet.publicKey;
       tx.recentBlockhash = (await aConnection.getLatestBlockhash('finalized')).blockhash;
       const sig = await sendAndConfirmTransaction(connection, tx, [escrowWallet]);
-    //  console.log("Deposit signature ",sig)
+      console.log("Deposit signature ",sig)
       const pacc = await program.account.gameAccount.fetch(playerPDA);
      // console.log(pacc)
       getBalance()
     }
     catch(err){
-    // console.log(err)
+     console.log(err)
     }
+*/
   }
 
   //if we lose, funds gets transferred from escrow to treasury
@@ -232,6 +236,10 @@ function App(props) {
       [utf8.encode("escrow_wallet").buffer, escrowWallet.publicKey.toBuffer()], program.programId);
     const treasurePDA = new web3.PublicKey(tres);
     losePop()
+
+       //DISABLED FOR BETA
+
+/*
     try{
       const tx = await program.methods.lose()
       .accounts({
@@ -247,16 +255,20 @@ function App(props) {
     //  console.log("losing sigature", sig)
       const msg = `${aUser.getUsername()} lost ${bet} SOL... :( `
       await Moralis.Cloud.run("addAnnouncement", {msg: msg});
-      setEnd()
-      setCanClose(true)
+
 
      // console.log("losing done")
      // const pacc = await program.account.gameAccount.fetch(playerPDA);
       //console.log(pacc.deposit.toNumber()/LAMPORTS_PER_SOL)
     }
     catch(err){
-     // console.log(err)
+      console.log(err)
     }
+*/
+  const msg = `${aUser.getUsername()} lost ${bet} SOL... :( `
+  await Moralis.Cloud.run("addAnnouncement", {msg: msg});
+    setEnd()
+    setCanClose(true)
   }
 
   //if we win, bet is transferred from treasury to escrow, then total is transferred to player wallet
@@ -276,6 +288,9 @@ function App(props) {
       [utf8.encode("escrow_wallet").buffer, escrowWallet.publicKey.toBuffer()], program.programId);
     const treasurePDA = new web3.PublicKey(tres);
     winPop()
+
+           //DISABLED FOR BETA
+/*
     try{
       const tx = await program.methods.winz(await Moralis.Cloud.run("checkWinner", {game: gameId}) as number) //.win()
       .accounts({
@@ -290,17 +305,20 @@ function App(props) {
       const sig = await sendAndConfirmTransaction(connection, tx, [escrowWallet], {commitment: "processed"});
 
       getBalance()
-      const msg = `${aUser.getUsername()} won ${bet} SOL! Sheeesh`
-      await Moralis.Cloud.run("addAnnouncement", {msg: msg});
-      setEnd()
-      setCanClose(true)
+
 
      // const pacc = await program.account.gameAccount.fetch(playerPDA);
       //console.log(pacc)
     }
     catch(err){
-    //  console.log(err)
+      console.log(err)
     }
+*/
+
+    const msg = `${aUser.getUsername()} won ${bet} SOL! Sheeesh`
+    await Moralis.Cloud.run("addAnnouncement", {msg: msg});
+    setEnd()
+    setCanClose(true)
 
   }
 
