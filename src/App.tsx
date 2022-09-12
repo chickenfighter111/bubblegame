@@ -412,14 +412,6 @@ function App(props) {
           }} />
           {start && bubbles && gameId ? 
           (<div>
-             <audio
-                id="lose"
-                src={loseAudio}
-            />
-            <audio
-                id="win"
-                src={winAudio}
-            />
             <audio
                 id="click"
                 src={clickAudio}
