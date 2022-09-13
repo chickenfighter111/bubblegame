@@ -103,16 +103,15 @@ function PlayerWallet() {
     let [accPDA, accBump] = await web3.PublicKey.findProgramAddress(
       [utf8.encode("escrow_wallet").buffer, escrowWallet.publicKey.toBuffer()], program.programId);
     try{
-      await program.account.gameAccount.fetch(accPDA);
-     // console.log("account exists", accPDA.toBase58())
-    }
-    catch(err){
       const tx = await program.methods.initialize(accBump)
       .accounts({
         anAccount: accPDA,
         signer: anchorWallet.publicKey,
         player: escrowWallet.publicKey
       }).rpc()
+    }
+    catch(err){
+      console.log(err)
     }
   }
 
@@ -126,7 +125,7 @@ function PlayerWallet() {
     await currentUser.save()
     aWallet.setACL(new Moralis.ACL(currentUser));
     await aWallet.save()
-    initPlayerAccount(aKp_string[1])
+    await initPlayerAccount(aKp_string[1])
   }
 
   const handleInput = (event) => {

@@ -100,6 +100,33 @@ function App(props) {
     }
   }
 
+  async function initPlayer(){
+    const aUser = Moralis.User.current()
+    const walletQry = new Moralis.Query("Wallet")
+    walletQry.equalTo("owner", aUser.id)
+    const aWallet = await walletQry.first()
+
+    const playerBuff = _base64ToArrayBuffer(aWallet.get("key"))
+    const u8int = new Uint8Array(playerBuff)
+    const escrowWallet = Keypair.fromSecretKey(u8int)
+
+    let [accPDA, accBump] = await web3.PublicKey.findProgramAddress(
+      [utf8.encode("escrow_wallet").buffer, escrowWallet.publicKey.toBuffer()], program.programId);
+   
+    try{
+      const tx = await program.methods.initialize(accBump)
+      .accounts({
+        anAccount: accPDA,
+        signer: anchorWallet.publicKey,
+        player: escrowWallet.publicKey
+      }).rpc()
+     // console.log(treasuryPDA.toBase58())
+    }
+    catch(err){
+     // console.log(err)
+    }
+  }
+
   function generate2DFillRandom(){
     function generateFillRandom(){
       const zeros = new Array(25).fill(0)
@@ -197,7 +224,6 @@ function App(props) {
 
     let [playerPDA, accBump] = await web3.PublicKey.findProgramAddress(
       [utf8.encode("escrow_wallet").buffer, escrowWallet.publicKey.toBuffer()], program.programId);
-   // const playerPDA = new web3.PublicKey(escrowWallet.publicKey);
 
    //DISABLED FOR BETA
     try{
@@ -210,14 +236,14 @@ function App(props) {
       const aConnection = new web3.Connection(network, 'finalized');
       tx.feePayer = escrowWallet.publicKey;
       tx.recentBlockhash = (await aConnection.getLatestBlockhash('finalized')).blockhash;
-      const sig = await sendAndConfirmTransaction(connection, tx, [escrowWallet]);
-      console.log("Deposit signature ",sig)
+      const sig = await sendAndConfirmTransaction(connection, tx, [escrowWallet], {commitment: "processed"});
+      //console.log("Deposit signature ",tx)
       const pacc = await program.account.gameAccount.fetch(playerPDA);
      // console.log(pacc)
       getBalance()
     }
     catch(err){
-     console.log(err)
+    // console.log(err)
     }
 
   }
@@ -240,7 +266,7 @@ function App(props) {
 
     //DISABLED FOR BETA
     try{
-/*
+
       const tx = await program.methods.lose()
       .accounts({
         player: escrowWallet.publicKey, //from
@@ -252,23 +278,18 @@ function App(props) {
       tx.feePayer = escrowWallet.publicKey;
       tx.recentBlockhash = (await aConnection.getLatestBlockhash('finalized')).blockhash;
       const sig = await sendAndConfirmTransaction(connection, tx, [escrowWallet], {commitment: "processed"});
-*/
-    //  console.log("losing sigature", sig)
+
+      //console.log("losing sigature", sig)
       const msg = `${aUser.getUsername()} lost ${bet} SOL... :( `
       await Moralis.Cloud.run("addAnnouncement", {msg: msg});
       setEnd()
       setCanClose(true)
-      console.log("losing")
-
-     // console.log("losing done")
      // const pacc = await program.account.gameAccount.fetch(playerPDA);
       //console.log(pacc.deposit.toNumber()/LAMPORTS_PER_SOL)
     }
     catch(err){
-      console.log(err)
+     // console.log(err)
     }
-
-
   }
 
   //if we win, bet is transferred from treasury to escrow, then total is transferred to player wallet
@@ -288,7 +309,7 @@ function App(props) {
     winPop()
     //DISABLED FOR BETA
     try{
-      /*const tx = await program.methods.winz(await Moralis.Cloud.run("checkWinner", {game: gameId}) as number) //.win()
+      const tx = await program.methods.winz(await Moralis.Cloud.run("checkWinner", {game: gameId}) as number) //.win()
       .accounts({
         player: escrowWallet.publicKey, //from
         anAccount: playerPDA,
@@ -298,7 +319,7 @@ function App(props) {
       const aConnection = new web3.Connection(network, 'finalized');
       tx.feePayer = escrowWallet.publicKey;
       tx.recentBlockhash = (await aConnection.getLatestBlockhash('finalized')).blockhash;
-      const sig = await sendAndConfirmTransaction(connection, tx, [escrowWallet], {commitment: "processed"}); */
+      await sendAndConfirmTransaction(connection, tx, [escrowWallet], {commitment: "processed"}); 
       const msg = `${aUser.getUsername()} won ${bet} SOL! Sheeesh`
       await Moralis.Cloud.run("addAnnouncement", {msg: msg});
       setEnd()
@@ -309,7 +330,7 @@ function App(props) {
       //console.log(pacc)
     }
     catch(err){
-      console.log(err)
+   //   console.log(err)
     }
   }
 
@@ -458,7 +479,6 @@ function App(props) {
   if(connected && isAuthenticated){
     return (
       <ContainerRow>
-
         <Col><DiscordChat started={start}/></Col >
         <Col lg={6}>
         <MainContainer/>
@@ -592,6 +612,14 @@ const ClaimContainer = (props) => {
           case 12:
             ratio = 1.9;
             break;
+          case 13: ratio = 2.06; break;
+          case 14: ratio = 2.25; break;
+          case 15: ratio = 10.47; break;
+          case 16: ratio = 2.47; break;
+          case 17: ratio = 3.09; break;
+          case 18: ratio = 3.54; break;
+          case 19: ratio = 4.12; break;
+          case 20: ratio = 4.94; break;  
           default:
             break;
         }; break;
@@ -634,6 +662,10 @@ const ClaimContainer = (props) => {
           case 12:
             ratio = 7.4;
             break;
+          case 13: ratio = 8.06; break;
+          case 14: ratio = 9.25; break;
+          case 15: ratio = 10.47; break;
+
           default:
             break;
         }; break;
