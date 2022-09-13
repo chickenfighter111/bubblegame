@@ -293,7 +293,7 @@ function App(props) {
   }
 
   //if we win, bet is transferred from treasury to escrow, then total is transferred to player wallet
-  const win = async () => {
+  const win = async (ratio:number) => {
     const aUser = Moralis.User.current()
     const walletQry = new Moralis.Query("Wallet")
     walletQry.equalTo("owner", aUser.id)
@@ -320,7 +320,7 @@ function App(props) {
       tx.feePayer = escrowWallet.publicKey;
       tx.recentBlockhash = (await aConnection.getLatestBlockhash('finalized')).blockhash;
       await sendAndConfirmTransaction(connection, tx, [escrowWallet], {commitment: "processed"}); 
-      const msg = `${aUser.getUsername()} won ${bet} SOL! Sheeesh`
+      const msg = `${aUser.getUsername()} won ${bet*ratio} SOL! Sheeesh`
       await Moralis.Cloud.run("addAnnouncement", {msg: msg});
       setEnd()
       setCanClose(true)
@@ -739,7 +739,7 @@ const ClaimContainer = (props) => {
     <div className='gameForm'>
     <h2 className='rew'>Rewards</h2>
     <h4 >{props.bet} x {ratio} SOL</h4>
-      <AsakaBtn onClick={props.win}> Claim </AsakaBtn>
+      <AsakaBtn onClick={() => props.win(ratio)}> Claim </AsakaBtn>
   </div>
   )
 }
