@@ -320,7 +320,7 @@ function App(props) {
       tx.feePayer = escrowWallet.publicKey;
       tx.recentBlockhash = (await aConnection.getLatestBlockhash('finalized')).blockhash;
       await sendAndConfirmTransaction(connection, tx, [escrowWallet], {commitment: "processed"}); 
-      const msg = `${aUser.getUsername()} won ${bet*ratio} SOL! Sheeesh`
+      const msg = `${aUser.getUsername()} won ${(bet*ratio).toPrecision(3)} SOL! Sheeesh`
       await Moralis.Cloud.run("addAnnouncement", {msg: msg});
       setEnd()
       setCanClose(true)
