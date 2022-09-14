@@ -31,7 +31,7 @@ export const NoFundsPopper = (props) =>{
               src={nofund}
               alt=""
             />
-            <AsakaBtn onClick={props.close} className="popupBtn">
+            <AsakaBtn disabled={!(props.canClose)} onClick={props.close} className="popupBtn">
                 Close
             </AsakaBtn>
           </Container>
@@ -67,7 +67,7 @@ export const NoFundsPopper = (props) =>{
               src={win}
               alt=""
             />
-            <AsakaBtn onClick={props.close} className="popupBtn">
+            <AsakaBtn disabled={!(props.canClose)} onClick={props.close} className="popupBtn">
                 Close
             </AsakaBtn>
           </Container>

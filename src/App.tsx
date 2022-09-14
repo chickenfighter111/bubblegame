@@ -409,13 +409,13 @@ function App(props) {
       <Container>
         <div className="mainContainer">
           <NoFundsPopper noFunds={noFunds} close={() => setNoFunds(false)} />
-          <WinPopper noFunds={resultPopper} close={async () => {
+          <WinPopper noFunds={resultPopper} canClose={canClose} close={async () => {
             if(canClose){
               setResPopper(false)
               await reset()
             }
           }} />
-          <LosePopper noFunds={losePopper} close={async() => {
+          <LosePopper noFunds={losePopper} canClose={canClose} close={async() => {
             if(canClose){
               setLosePopper(false)
               await reset()
