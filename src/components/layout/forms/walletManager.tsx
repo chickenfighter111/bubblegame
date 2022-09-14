@@ -117,7 +117,7 @@ export default function DepositForm(props) {
             const arraybuf = await _base64ToArrayBuffer(aWallet.get("key"))
             const u8int= new Uint8Array(arraybuf)
             const escrowWallet = Keypair.fromSecretKey(u8int)
-            const wTx = await program.methods.widrawl(new BN(LAMPORTS_PER_SOL*amount-(0.00001*LAMPORTS_PER_SOL)))
+            const wTx = await program.methods.widrawl(new BN(LAMPORTS_PER_SOL*amount-(0.001*LAMPORTS_PER_SOL)))
             .accounts({
               escrowAcc: escrowWallet.publicKey,
               toMe: publicKey
