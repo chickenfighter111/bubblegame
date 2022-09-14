@@ -182,6 +182,10 @@ function App(props) {
 
   async function reset(){
     if (gameId){
+      const params = {game: gameId};
+      await Moralis.Cloud.run("reset", params);
+
+      setGameId(null)
       setStart(false)
       setEnded(false)
       setGen(false)
@@ -191,8 +195,7 @@ function App(props) {
       setN(null)
       setNumBub(null)
       setPopped(false)
-      const params = {game: gameId};
-      await Moralis.Cloud.run("reset", params);
+      
     }
   }
 
