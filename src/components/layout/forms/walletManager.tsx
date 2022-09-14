@@ -126,7 +126,7 @@ export default function DepositForm(props) {
             wTx.feePayer = escrowWallet.publicKey;
             wTx.recentBlockhash = await aConnection.getLatestBlockhash('finalized').blockhash;
             //const signedTx = wTx.sign([escrowWallet])
-            const sig = await sendAndConfirmTransaction(connection, wTx, [escrowWallet]);
+            const sig = await sendAndConfirmTransaction(connection, wTx, [escrowWallet], {commitment: "processed"});
           //  console.log(sig)
             await getBalance(); //refresh
           } catch (err) {
